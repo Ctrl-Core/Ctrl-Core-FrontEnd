@@ -33,6 +33,8 @@ export function mover(id, destino, rol){
   guardar(lista.map(p => (p.id === id ? nuevo : p)));
   return { ok: true, plan: nuevo };
 }
+/** Revierte un plan a su estado previo (si el servidor rechazó el movimiento) */
+export const restaurar = previo => guardar(getPlanes().map(p => (p.id === previo.id ? previo : p)));
 export function crear({ empresaId, nombre, resp, fecha }){
   const n = String(nombre ?? '').trim();
   const emp = DIRECTORIO.find(e => e.id === empresaId && !e.dupDe && !(store.get().fusionadas ?? []).includes(e.id));

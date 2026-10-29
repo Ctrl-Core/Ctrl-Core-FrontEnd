@@ -10,6 +10,8 @@
  *   - tag / tags[rol]  : etiqueta del Web Component que se monta (tags permite una vista distinta por rol)
  *   - roles            : roles con acceso (si se omite, acceso libre)
  *   - soon             : roles cuya vista aún no existe → aviso "se construye en el siguiente paso"
+ *   - guard / guardMsg : ({ role, params, query }) => boolean; si es false se avisa con guardMsg y no se navega
+ *   - parents          : { rol: [etiqueta, hash] } miga de pan distinta por rol
  *   - chrome           : 'bare' (solo topbar) | 'app' (sidebar + topbar), lo consume el App Shell
  */
 import { toast } from '../../shared/utils/dom.js';
@@ -102,8 +104,11 @@ export const router = {
       return router.stay();
     }
 
+    // Guarda por parámetros (p. ej. el Emprendedor solo abre el expediente de SU empresa)
+    if (base.guard && !base.guard({ role, params, query })) { toast(base.guardMsg ?? MSG_DENIED); return router.stay(); }
+
     // Una misma ruta puede montar vistas distintas según el rol (p. ej. /agenda: Director vs. Docente)
-    const def = { ...base, tag: base.tags?.[role] ?? base.tag, title: base.titles?.[role] ?? base.title };
+    const def = { ...base, tag: base.tags?.[role] ?? base.tag, title: base.titles?.[role] ?? base.title, parent: base.parents?.[role] ?? base.parent };
     if (!customElements.get(def.tag)) {
       console.error(`[router] El componente <${def.tag}> no está registrado (revisar app.js)`);
       toast('Esta vista no está disponible');

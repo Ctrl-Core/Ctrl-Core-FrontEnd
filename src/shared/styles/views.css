@@ -260,3 +260,109 @@ a.badge{text-decoration:none}a.badge:hover,a.badge:focus-visible{background:var(
 .regla[aria-pressed=true]{border:2px solid var(--verde-mar);background:#fff}
 @media(min-width:700px){.disp{grid-template-columns:minmax(0,1.1fr) minmax(0,2fr) auto;align-items:center}}
 @media(min-width:900px){.flow{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr)}.flow-arrow{transform:none}}
+
+/* ---------- Emprendedor · Mi empresa + tarjeta de nivel reutilizable ---------- */
+.nivel{display:flex;flex-wrap:wrap;align-items:center;gap:20px 24px}
+.anillo{--p:0;display:grid;place-items:center;flex:none;width:96px;height:96px;border-radius:50%;background:conic-gradient(var(--verde-mar) calc(var(--p)*1%),var(--borde) 0)}
+.anillo>div{display:grid;place-items:center;align-content:center;width:76px;height:76px;border-radius:50%;background:#fff;font-size:10px;letter-spacing:.1em;color:var(--texto-2)}
+.anillo b{font-size:28px;line-height:1;letter-spacing:0;color:var(--texto)}
+.nv-info{flex:1 1 260px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.kicker{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--texto-2)}
+.nv-info h2{font-size:20px;color:var(--verde-oscuro)}
+.nv-xp{font-size:12px;color:var(--texto-2)}.nv-xp b{color:var(--texto)}
+.nv-stats{display:flex;flex-wrap:wrap;align-items:center;gap:16px 32px;flex:1 1 100%;padding-top:16px;border-top:1px solid var(--borde)}
+.racha{display:flex;flex-direction:column;gap:6px}
+.dias{display:flex;gap:6px}
+.dias i{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--borde);color:var(--texto-2);font:700 11px var(--font)}
+.dias i.on{background:var(--verde-accion);color:#fff}
+.stat{display:flex;flex-direction:column}.stat b{font-size:22px;line-height:1.2}.stat span{font-size:12px;color:var(--texto-2)}
+.mie{display:flex;flex-direction:column;gap:16px}
+.mie-grid{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+.asesoria{display:flex;flex-direction:column;gap:8px}
+.asesoria .fecha{font-size:20px;font-weight:600;color:var(--verde-oscuro)}
+.asesoria .chip{align-self:flex-start;cursor:default}
+.push{margin-top:auto}
+.mie .t-m,.mie .ft-exp{display:none}
+@media(min-width:1100px){
+  .nivel{flex-wrap:nowrap}.nv-stats{flex:0 0 auto;border:0;padding:0}
+  .mie-grid{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr)}
+}
+@media(max-width:699px){
+  .mie .t-d,.mie .hd-exp{display:none}.mie .t-m{display:inline}.mie .ft-exp{display:block}
+  .anillo{width:84px;height:84px}.anillo>div{width:66px;height:66px}.anillo b{font-size:24px}
+  .asesoria{order:-1}
+}
+
+/* ---------- Emprendedor · Academia ---------- */
+.acad{display:flex;flex-direction:column;gap:16px;min-width:0}
+.acad-row{display:grid;gap:16px;grid-template-columns:minmax(0,1fr);align-items:stretch}
+.card.ia-card{display:flex;flex-direction:column;gap:12px;background:var(--verde-oscuro);border-color:var(--verde-oscuro);color:#fff}
+.card.ia-card h2{color:#fff;font-size:24px;letter-spacing:-.3px}
+.ia-card p{color:var(--sb-texto);max-width:520px}
+.ia-k{display:flex;align-items:center;gap:8px;color:var(--verde-acento)}
+.ia-k .kicker{color:#A9E8CC}
+.ia-acts{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:auto}
+.ia-b{background:rgba(255,255,255,.14);color:#fff}
+.btn.claro{margin-left:auto;background:#fff;color:var(--verde-oscuro)}
+.btn.claro:hover{background:var(--menta)}
+.reto{display:flex;flex-direction:column;gap:10px}
+.reto h2{font-size:18px;color:var(--verde-oscuro)}
+.reto .h{margin-bottom:0;flex-wrap:wrap}
+.nivel.pasos{flex-wrap:wrap}
+.lv-steps{display:flex;flex-wrap:wrap;gap:10px 18px;flex:1 1 100%;padding-top:16px;border-top:1px solid var(--borde)}
+.lv{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--texto-2)}
+.lv i{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--borde);color:var(--texto-2);font:700 12px var(--font);font-style:normal}
+.lv.hecho i{background:var(--verde-accion);color:#fff}
+.lv.actual{color:var(--verde-oscuro);font-weight:600}
+.lv.actual i{background:#fff;box-shadow:inset 0 0 0 2px var(--verde-accion);color:var(--verde-hover)}
+.resultados{display:flex;flex-direction:column;gap:14px}
+.resultados li{display:flex;align-items:center;gap:12px}
+.resultados li b{display:block;font-size:22px;line-height:1.2}
+.medallas{display:flex;flex-wrap:wrap;gap:12px}
+.md{display:flex;flex-direction:column;align-items:center;gap:6px;width:104px;text-align:center;font-size:12px;font-weight:600;color:var(--verde-oscuro)}
+.md i{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:var(--menta);color:var(--verde-accion)}
+.md small{font-weight:400;color:var(--texto-2)}
+.md.off{color:var(--texto-2)}.md.off i{background:var(--deshabilitado);color:var(--texto-2);border:1px dashed var(--borde-campo)}
+.misiones{display:flex;flex-direction:column;gap:12px}
+.ms{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:14px;border:1px solid var(--borde);border-radius:var(--radio)}
+.ms-t{display:flex;flex-direction:column;align-items:flex-start;gap:4px;flex:1 1 200px;min-width:0}
+.ms.lock{background:var(--fondo);border-style:dashed}
+.ms.lock .ms-t b{color:var(--texto-2)}
+.recompensas{display:flex;flex-direction:column;gap:12px}
+.rw{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:16px;border:1px dashed #9AA3A8;border-radius:var(--radio);background:var(--fondo)}
+.rw .h3{display:flex;align-items:center;gap:8px}
+.rw.off .h3{color:var(--texto-2)}
+.q-txt{font-size:15px;font-weight:600}
+.q-ops{display:flex;flex-direction:column;gap:8px;border:0;padding:0;margin:0}
+.q-op{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border:1px solid var(--borde-campo);border-radius:var(--radio-sm);cursor:pointer}
+.q-op:has(input:checked){border-color:var(--verde-accion);background:var(--menta)}
+.q-op input{accent-color:var(--verde-accion)}
+@media(min-width:1100px){
+  .acad-row.a1{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}
+  .acad-row.a2{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}
+  .acad-row.a3{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);align-items:start}
+}
+@media(max-width:699px){.card.ia-card h2{font-size:20px}.btn.claro{margin-left:0;width:100%}.md{width:96px}}
+
+/* ---------- Emprendedor · Mis citas y eventos ---------- */
+.citas{display:flex;flex-direction:column;gap:16px;min-width:0}
+.ct-row{display:grid;gap:16px;grid-template-columns:minmax(0,1fr);align-items:stretch}
+.proxima{display:flex;flex-direction:column;gap:14px}
+.pa-fecha{display:flex;align-items:center;gap:16px;padding:16px;border-radius:var(--radio);background:var(--menta);color:var(--texto-menta)}
+.pa-d{display:block;font-size:18px;color:var(--verde-oscuro)}
+.fbloque{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none;width:56px;height:56px;border-radius:var(--radio);background:#fff;color:var(--verde-oscuro);line-height:1.1}
+.fbloque b{font-size:20px}.fbloque small{font-size:11px;font-weight:600;color:var(--texto-menta)}
+.proxima .chip{align-self:flex-start;cursor:default}
+.proxima .acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto}
+.mevs,.asesorias{display:flex;flex-direction:column;gap:12px}
+.mev{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:14px;border:1px solid var(--borde);border-radius:var(--radio)}
+.mev.prox{border:1.5px solid var(--verde-accion);background:#F6FBF8}
+.mev-t{display:flex;flex-direction:column;flex:1 1 160px;min-width:0}
+.ase{display:flex;flex-direction:column;gap:4px;padding-bottom:12px;border-bottom:1px solid var(--borde)}
+.ase:last-child{border-bottom:0;padding-bottom:0}
+.ase-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ase details{margin-top:4px;font-size:13px}
+.ase summary{cursor:pointer;font-weight:600;color:var(--verde-hover)}
+.ase details p{margin-top:6px}
+.qr-p{text-align:center}
+@media(min-width:1100px){.ct-row.a{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}.ct-row.b{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);align-items:start}}

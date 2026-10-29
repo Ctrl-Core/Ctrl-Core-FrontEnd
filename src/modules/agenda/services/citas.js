@@ -1,12 +1,15 @@
 /** Reglas de asesorías (Docente): agendar sin cruces, confirmar, cancelar y registrar el acta. Sin DOM. */
 import { store } from '../../../core/db/store.js';
-import { CITAS, DIRECTORIO, HOY, HORAS_CITA } from '../../../core/db/data.js';
+import { CITAS, DIRECTORIO, HOY, HORAS_CITA, USUARIO_EMPRENDEDOR } from '../../../core/db/data.js';
 import { esFecha, diaSemana } from '../../../shared/utils/dates.js';
 
 export const getCitas = () => store.get().citas ?? CITAS;
 const guardar = l => store.set({ citas: l });
 const cambiar = (id, patch) => guardar(getCitas().map(c => (c.id === id ? { ...c, ...patch } : c)));
 export const citasDe = empresaId => getCitas().filter(c => c.empresaId === empresaId);
+/** Próxima asesoría vigente de una empresa (pendiente o confirmada, desde hoy) */
+export const proximaDe = empresaId => citasDe(empresaId).filter(c => (c.estado === 'Pendiente' || c.estado === 'Confirmada') && c.fecha >= HOY)
+  .sort((a, b) => (a.fecha + a.hora).localeCompare(b.fecha + b.hora))[0] ?? null;
 
 export function agendar({ empresaId, tema, fecha, hora }){
   const t = String(tema ?? '').trim();
@@ -38,4 +41,23 @@ export function guardarActa(id, { acuerdos, proximo }){
   if (a.length < 5 || a.length > 1000) return { ok: false, error: 'Los acuerdos deben tener entre 5 y 1.000 caracteres' };
   if (p.length > 300) return { ok: false, error: 'El próximo paso admite hasta 300 caracteres' };
   cambiar(id, { estado: 'Realizada', acta: { acuerdos: a, proximo: p } }); return { ok: true };
+}
+
+/* ---------- Emprendedor: pedir y reprogramar SU asesoría ---------- */
+/** Una empresa solo puede tener UNA asesoría vigente (pendiente o confirmada) a la vez */
+export function solicitar({ tema, fecha, hora }){
+  if (proximaDe(USUARIO_EMPRENDEDOR.empresaId)) return { ok: false, error: 'Ya tienes una asesoría programada: reprográmala o cancélala antes de pedir otra' };
+  const r = agendar({ empresaId: USUARIO_EMPRENDEDOR.empresaId, tema, fecha, hora });
+  return r.ok ? r : { ok: false, error: r.error === 'Ya tienes una cita a esa hora' ? 'Ese horario ya está ocupado: elige otro' : r.error };
+}
+/** Reprogramar: solo citas vigentes, con al menos un día de anticipación; vuelve a "Pendiente" para que el asesor la confirme */
+export function reprogramar(id, { fecha, hora }){
+  const c = getCitas().find(x => x.id === id);
+  if (!c || (c.estado !== 'Pendiente' && c.estado !== 'Confirmada')) return { ok: false, error: 'Solo se reprograman citas vigentes' };
+  if (c.fecha <= HOY) return { ok: false, error: 'Solo puedes reprogramar con al menos un día de anticipación' };
+  if (!esFecha(fecha) || fecha <= HOY) return { ok: false, error: 'Elige una fecha posterior a hoy' };
+  if (diaSemana(fecha) > 4) return { ok: false, error: 'Las asesorías se agendan de lunes a viernes' };
+  if (!HORAS_CITA.includes(hora)) return { ok: false, error: 'Elige una hora de la lista' };
+  if (getCitas().some(x => x.id !== id && x.fecha === fecha && x.hora === hora && x.estado !== 'Cancelada')) return { ok: false, error: 'Ese horario ya está ocupado: elige otro' };
+  cambiar(id, { fecha, hora, estado: 'Pendiente' }); return { ok: true };
 }

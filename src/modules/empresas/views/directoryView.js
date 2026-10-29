@@ -8,6 +8,7 @@ import { norm, fmt } from '../../../shared/utils/text.js';
 import { icon } from '../../../shared/utils/icons.js';
 import { h, frag, toast } from '../../../shared/utils/dom.js';
 import { similar } from '../services/duplicados.js';
+import { hidratarEmpresas, nombreSector, verificarDuplicado } from '../../../core/api/contrato.js';
 
 const UMBRAL_DUP = 0.7; // similitud mínima para avisar "¿Quisiste decir…?"
 
@@ -27,7 +28,27 @@ export class DirectoryView extends CdeView {
   }
   get merged(){ return store.get().fusionadas ?? []; }
   get puedeCrear(){ return store.get().role === 'dir'; }
-  label(id){ return SECTORES.find(s => s.id === id)?.nombre ?? 'Sin sector'; }
+  label(id){ return nombreSector(id); }
+  load(){ return hidratarEmpresas(true); }
+  cleanup(){ clearTimeout(this._tIA); }
+  /** Guardián de la IA (FastAPI): consulta con pausa de 400 ms mientras se escribe el nombre */
+  verificarIA(){
+    clearTimeout(this._tIA); this.dupIA = null;
+    if (norm(this.text).length < 4 || !this.puedeCrear) return;
+    this._tIA = setTimeout(async () => {
+      const sector = this.sector && this.sector !== 'sin-sector' ? nombreSector(this.sector) : '';
+      const r = await verificarDuplicado({ razon_social: this.text.trim(), sector, municipio: '' });
+      if (this.isConnected && r){ this.dupIA = r; this.paint(); }
+    }, 400);
+  }
+  alertIA(){
+    const m = this.dupIA?.is_duplicate_risk ? this.dupIA.matches?.[0] : null; if (!m) return null;
+    const id = m.empresa_id ?? m.id, nombre = m.nombre ?? m.nombre_comercial ?? m.razon_social ?? 'una empresa existente';
+    return h('div', { class: 'alert dup', role: 'status' },
+      h('span', { class: 'ico' }, icon('alert', 15)),
+      h('div', { class: 'txt' }, 'La IA detecta riesgo de duplicado: ', h('b', { text: nombre }), '.'),
+      id != null ? h('button', { class: 'btn o', type: 'button', text: 'Abrir ficha', on: { click: () => go('/empresas/' + (String(id).startsWith('e') ? id : 'e' + id)) } }) : null);
+  }
 
   /** Filas visibles según texto + filtro + sector (las fichas ya fusionadas se ocultan) */
   filtered(){
@@ -56,7 +77,7 @@ export class DirectoryView extends CdeView {
   clear(){ this.filtro = 'Todas'; this.sector = null; this.text = ''; this.$input.value = ''; this.paint(); }
 
   alertNode(){
-    const canon = this.suggestion(); if (!canon) return null;
+    const canon = this.suggestion(); if (!canon) return this.alertIA();
     const dup = DIRECTORIO.find(e => e.dupDe === canon.id && !this.merged.includes(e.id) && norm(e.nombre) === norm(this.text));
     return h('div', { class: 'alert dup', role: 'status' },
       h('span', { class: 'ico' }, icon('alert', 15)),
@@ -93,7 +114,7 @@ export class DirectoryView extends CdeView {
 
   render(){
     this.$input = h('input', { id: 'dir-q', class: 'field', type: 'text', autocomplete: 'off', placeholder: 'Nombre de la empresa', value: this.text,
-      on: { input: e => { this.text = e.target.value; this.paint(); } } });
+      on: { input: e => { this.text = e.target.value; this.paint(); this.verificarIA(); } } });
     this.$alert = h('div'); this.$chips = h('div', { class: 'chips', role: 'group', aria: { label: 'Filtrar por estado' } });
     this.$rows = h('div', { role: 'rowgroup' });
     this.$live = h('p', { class: 'sr-only', aria: { live: 'polite' } });

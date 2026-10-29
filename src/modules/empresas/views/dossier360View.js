@@ -8,6 +8,7 @@ import { store } from '../../../core/db/store.js';
 import { go } from '../../../core/router/vanillaRouter.js';
 import { icon } from '../../../shared/utils/icons.js';
 import { h, toast } from '../../../shared/utils/dom.js';
+import { hidratarEmpresas, hidratarExpediente, nombreSector } from '../../../core/api/contrato.js';
 import { getExpediente, aplicarDiagnostico, editarFicha, sintesis, fechaCorta } from '../services/expedientes.js';
 
 /**
@@ -22,7 +23,10 @@ export class Dossier360View extends CdeView {
   get esDocente(){ return this.role === 'doc'; }
   get esDirector(){ return this.role === 'dir'; }
 
-  bind(){
+  bind(){ this.resolver(); }
+  async load(){ await hidratarEmpresas(); await hidratarExpediente(this.params.id); }
+  loaded(){ this.cargado = true; this.resolver(); }
+  resolver(){
     this.empresa = DIRECTORIO.find(e => e.id === this.params.id) ?? null;
     this.exp = this.empresa ? getExpediente(this.empresa.id) : null;
     if (this.route && this.empresa) this.route.label = this.empresa.nombre;   // el shell lo muestra en las migas
@@ -39,7 +43,7 @@ export class Dossier360View extends CdeView {
   /* ---------- Bloques ---------- */
   iniciales(n){ return n.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join(''); }
   ficha(){
-    const e = this.empresa, x = this.exp, sector = SECTORES.find(s => s.id === e.sectorId)?.nombre ?? 'Sin sector';
+    const e = this.empresa, x = this.exp, sector = nombreSector(e.sectorId);
     const kv = (k, v) => h('div', { class: 'kv' }, h('span', { text: k }), h('b', { text: v }));
     return h('section', { class: 'card exp-ficha', aria: { label: 'Ficha de la empresa' } },
       h('div', { class: 'exp-id' },
@@ -115,6 +119,7 @@ export class Dossier360View extends CdeView {
   }
 
   render(){
+    if (!this.cargado && (!this.empresa || !this.exp)) return h('p', { class: 'muted', role: 'status', text: 'Cargando expediente…' });
     if (!this.empresa || !this.exp){
       const dup = this.empresa?.dupDe && DIRECTORIO.find(e => e.id === this.empresa.dupDe);
       return dup

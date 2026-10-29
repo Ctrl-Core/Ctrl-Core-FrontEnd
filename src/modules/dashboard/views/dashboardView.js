@@ -1,6 +1,8 @@
 import { CdeView } from '../../../shared/components/cde-view.js';
 import { meterBar } from '../../../shared/components/data-table/meter-bar.js';
 import { KPIS, PERIODO, PLANES_VENCIDOS, SECTORES, MAX_SECTOR, TOTALS, PREGUNTA_EJEMPLO, SUGERENCIAS } from '../../../core/db/data.js';
+import { PLAN_ACCION, hidratarDashboard } from '../../../core/api/contrato.js';
+import { statusBadge } from '../../../shared/components/data-table/status-badge.js';
 import { go } from '../../../core/router/vanillaRouter.js';
 import { fmt } from '../../../shared/utils/text.js';
 import { icon } from '../../../shared/utils/icons.js';
@@ -25,6 +27,7 @@ export class DashboardView extends CdeView {
       setTimeout(() => { this.generating = false; if (this.isConnected){ this.update(); toast('Reporte generado (demo)'); } }, 1400);
     });
   }
+  load(){ return hidratarDashboard(); }
   pickSector(id){ this.sector = this.sector === id ? null : id; this.update(); this.focusBy('sector', id); }
 
   kpi(k){
@@ -38,7 +41,7 @@ export class DashboardView extends CdeView {
   sectorRow(s){
     return h('li', {}, h('button', { type: 'button', class: 'bar-row', dataset: { sector: s.id }, aria: { pressed: this.sector === s.id, label: `${s.nombre}: ${s.v}%` },
       on: { click: () => this.pickSector(s.id) } },
-      h('span', { class: 'bar-n', text: s.nombre }), meterBar(s.v / MAX_SECTOR * 100), h('b', { text: s.v + '%' })));
+      h('span', { class: 'bar-n', text: s.nombre }), meterBar(s.v / Math.max(MAX_SECTOR, ...SECTORES.map(x => x.v)) * 100), h('b', { text: s.v + '%' })));
   }
   render(){
     const sel = SECTORES.find(s => s.id === this.sector);
@@ -63,6 +66,13 @@ export class DashboardView extends CdeView {
           SUGERENCIAS.map(s => h('button', { class: 'chip', type: 'button', text: s.label, on: { click: () => go(s.to, s.query) } })))),
 
       h('div', { class: 'kpis' }, KPIS.map(k => this.kpi(k))),
+
+      PLAN_ACCION.length ? h('section', { class: 'card', aria: { labelledby: 'h-pa' } },
+        h('h2', { class: 'h', id: 'h-pa', text: 'Plan de acción 2026' }),
+        h('ul', { class: 'bars' }, PLAN_ACCION.map(p => h('li', { class: 'bar-row' },
+          h('span', { class: 'bar-n', text: p.programa }), meterBar(Math.min(100, p.meta ? p.avance / p.meta * 100 : 0)),
+          h('b', { text: `${p.avance}/${p.meta}` }),
+          statusBadge(String(p.estado).replace(/_/g, ' ').toLowerCase().replace(/^./, c => c.toUpperCase())))))) : null,
 
       h('div', { class: 'g split-r dash-cols' },
         h('section', { class: 'card', aria: { labelledby: 'h-sec' } },

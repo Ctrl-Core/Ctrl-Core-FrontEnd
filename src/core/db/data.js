@@ -103,17 +103,19 @@ export const PLANES = [
 export const XP_CHECKIN = 50;
 export const EVENTOS = [
   { id: 'ev1', nombre: 'Taller de costos', fecha: '2026-11-24', hora: '14:00', estado: 'Confirmada', convocados: 320, inscritos: 148, asistentes: 96 },
-  { id: 'ev2', nombre: 'Feria CDE', fecha: '2026-12-02', hora: '09:00', estado: 'Borrador', convocados: 250, inscritos: 0, asistentes: 0 }
+  { id: 'ev2', nombre: 'Feria CDE', fecha: '2026-12-02', hora: '09:00', estado: 'Borrador', convocados: 250, inscritos: 0, asistentes: 0 },
+  { id: 'ev0', nombre: 'Taller de costos', fecha: '2026-05-14', hora: '14:00', estado: 'Realizada', convocados: 200, inscritos: 90, asistentes: 61 }
 ];
 /** Muestra nominal de personas por evento (los totales del embudo vienen del evento) */
 export const ASISTENCIA = {
   ev1: [
-    { id: 'a1', nombre: 'María Rojas', empresaId: 'e101', estado: 'Asistió' },
+    { id: 'a1', nombre: 'María Rojas', empresaId: 'e101', estado: 'Inscrito' },
     { id: 'a2', nombre: 'Laura Mejía', empresaId: 'e108', estado: 'Inscrito' },
     { id: 'a3', nombre: 'Pedro Gil', empresaId: 'e104', estado: 'Inscrito' },
     { id: 'a4', nombre: 'Ana Cruz', empresaId: 'e105', estado: 'No asistió' }
   ],
-  ev2: []
+  ev2: [],
+  ev0: [{ id: 'b1', nombre: 'María Rojas', empresaId: 'e101', estado: 'Asistió' }, { id: 'b2', nombre: 'Pedro Gil', empresaId: 'e104', estado: 'No asistió' }]
 };
 export const HORAS_CITA = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00'];
 export const CITAS = [
@@ -123,7 +125,8 @@ export const CITAS = [
   { id: 'c4', empresaId: 'e107', tema: 'Ventas', fecha: '2026-11-03', hora: '15:00', estado: 'Cancelada', acta: null },
   { id: 'c5', empresaId: 'e105', tema: 'Oferta', fecha: '2026-11-04', hora: '09:00', estado: 'Pendiente', acta: null },
   { id: 'c6', empresaId: 'e108', tema: 'Finanzas', fecha: '2026-11-05', hora: '11:00', estado: 'Pendiente', acta: null },
-  { id: 'c7', empresaId: 'e102', tema: 'Inventario', fecha: '2026-11-06', hora: '08:00', estado: 'Confirmada', acta: null }
+  { id: 'c7', empresaId: 'e102', tema: 'Inventario', fecha: '2026-11-06', hora: '08:00', estado: 'Confirmada', acta: null },
+  { id: 'c8', empresaId: 'e101', tema: 'Costos', fecha: '2026-11-09', hora: '09:00', estado: 'Confirmada', acta: null }
 ];
 
 /* ---------- Automatizaciones (P6) ---------- */
@@ -156,10 +159,49 @@ export const AHORA = HOY + 'T08:00';
 /* ---------- Roles (antes roles.js) ----------
  * Matriz de roles: menú lateral y pantalla de inicio. Es configuración estática, por eso vive junto a los datos base. */
 export const ROLES = {
-  dir: { label: 'Director', home: '/setup',
+  dir: { label: 'Director', avatar: 'JD', home: '/setup',
     menu: [['/dashboard','Centro de mando','dash'], ['/empresas','Empresas','building'], ['/agenda','Agenda y eventos','calendar'], ['/automatizaciones','Automatizaciones','zap']] },
-  doc: { label: 'Docente', home: '/intervenciones',
+  doc: { label: 'Docente', avatar: 'AP', home: '/intervenciones',
     menu: [['/intervenciones','Intervenciones','clip'], ['/empresas','Empresas','building'], ['/agenda','Agenda y eventos','calendar']] },
-  emp: { label: 'Emprendedor', home: '/mi-empresa',
-    menu: [['/mi-empresa','Mi empresa','briefcase'], ['/academia','Academia','cap'], ['/agenda','Mis citas y eventos','calendar']] }
+  emp: { label: 'Emprendedor', avatar: 'MR', home: '/mi-empresa',
+    // 4.º elemento = etiquetas cortas para tablet (md) y móvil (sm)
+    menu: [['/mi-empresa','Mi empresa','briefcase',{ md: 'Mi empresa', sm: 'Mi ruta' }], ['/academia','Academia','cap',{ md: 'Academia', sm: 'Academia' }], ['/agenda','Mis citas / eventos','calendar',{ md: 'Mis citas', sm: 'Citas' }]] }
 };
+
+/* ---------- Emprendedor: Mi empresa, Academia, Mis citas ---------- */
+export const USUARIO_EMPRENDEDOR = { nombre: 'María Rojas', empresaId: 'e101', iniciales: 'MR' };
+export const ASESOR_NOMBRE = 'Ana Pérez';
+export const XP_MISION_CITA = 150;
+/** Niveles por XP acumulado: el avance se mide contra el umbral del siguiente nivel (1.450 / 2.000 = 72 %) */
+export const NIVELES = [
+  { n: 1, nombre: 'Idea en Semilla', desde: 0 }, { n: 2, nombre: 'Emprendimiento Activo', desde: 500 },
+  { n: 3, nombre: 'Empresa en Tracción', desde: 1000 }, { n: 4, nombre: 'Empresa Consolidada', desde: 2000 }
+];
+export const PERFIL = { xp: 1450, xpSemana: 320, racha: 5, dias: [1, 1, 1, 1, 1, 0, 0] };
+export const DIAS_RACHA = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+export const MEDALLAS = [{ id: 'primer_plan', nombre: 'Primer plan' }, { id: 'constante', nombre: 'Constante' }, { id: 'despegue', nombre: 'Despegue' }, { id: 'lider', nombre: 'Líder' }, { id: 'referente', nombre: 'Referente' }];
+
+/* ---------- Academia (Emprendedor) ---------- */
+/** Misiones: pasos 'leer' (se confirman) o 'quiz' (opciones + índice correcto). xp se otorga UNA vez al completar. */
+export const MISIONES = [
+  { id: 'm1', tipo: 'Píldora', titulo: 'Costos en 5 minutos', area: 'finanzas', xp: 150, minutos: 5, nivelMin: 1, pasos: [
+    { t: 'leer', titulo: '¿Qué es el costo unitario?', texto: 'Es lo que te cuesta producir UNA unidad: materia prima + mano de obra + costos indirectos, divididos entre las unidades producidas.' },
+    { t: 'leer', titulo: 'No olvides los costos ocultos', texto: 'Empaques, transporte, desperdicio y tu propio tiempo también cuentan. Si no los incluyes, tu margen real es menor al que crees.' },
+    { t: 'quiz', titulo: 'Comprueba lo aprendido', pregunta: 'Una panadería gasta $600.000 en insumos y $200.000 en mano de obra para producir 400 panes. ¿Cuál es el costo unitario?', opciones: ['$1.500', '$2.000', '$800'], correcta: 1 }] },
+  { id: 'm2', tipo: 'Quiz', titulo: 'Quiz de precios', area: 'mercadeo', xp: 100, minutos: 4, nivelMin: 1, pasos: [
+    { t: 'quiz', titulo: 'Pregunta 1', pregunta: '¿Qué debe cubrir como mínimo un precio de venta?', opciones: ['Solo la materia prima', 'El costo total más una ganancia', 'El precio de la competencia'], correcta: 1 },
+    { t: 'quiz', titulo: 'Pregunta 2', pregunta: 'Si subes el precio y las ventas bajan poco, tu demanda es…', opciones: ['Poco sensible al precio', 'Muy sensible al precio', 'Inexistente'], correcta: 0 },
+    { t: 'quiz', titulo: 'Pregunta 3', pregunta: 'Si el costo unitario es $2.000 y quieres un margen de 25% sobre el costo, ¿cuánto cobras?', opciones: ['$2.250', '$2.500', '$2.600'], correcta: 1 }] },
+  { id: 'm3', tipo: 'Meta', titulo: 'Subir a 3 clientes', area: 'mercadeo', xp: 150, minutos: 0, nivelMin: 1, pasos: [
+    { t: 'leer', titulo: 'Primer cliente nuevo', texto: 'Registra tu primer cliente nuevo del periodo.' }, { t: 'leer', titulo: 'Segundo cliente nuevo', texto: 'Registra el segundo cliente nuevo.' }, { t: 'leer', titulo: 'Tercer cliente nuevo', texto: 'Registra el tercer cliente nuevo.' }] },
+  { id: 'm4', tipo: 'Mentoría', titulo: 'Mentoría con experto', area: null, xp: 300, minutos: 0, nivelMin: 4, pasos: [{ t: 'leer', titulo: 'Sesión con tu mentor', texto: 'Se agenda con el CDE.' }] }
+];
+/** Estado inicial de progreso por misión (hechos = pasos cumplidos; cobrada = XP ya otorgado) */
+export const MISION_INICIAL = { m1: { hechos: 0, cobrada: false }, m2: { hechos: 2, cobrada: false }, m3: { hechos: 3, cobrada: true }, m4: { hechos: 0, cobrada: false } };
+export const RETO = { id: 'reto1', titulo: 'Sube tu ficha al 90%', meta: 90, bono: 200, fin: '2026-10-31T22:00' };
+export const RESULTADOS = { ventas: '+18%', clientes: 2 };
+/** Recompensas canjeables con saldo de XP (el nivel NO baja al canjear: el saldo se lleva aparte) */
+export const RECOMPENSAS = [
+  { id: 'rw1', nombre: 'Mentoría premium', costo: 1500, nivelMin: 4, nota: 'Nueva recompensa. Se abre al llegar al Nivel 4.' },
+  { id: 'rw2', nombre: 'Cupo prioritario en taller CDE', costo: 300, nivelMin: 2, nota: 'Reserva tu cupo en el próximo taller del CDE.' }
+];

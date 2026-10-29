@@ -10,6 +10,13 @@ export class CdeView extends HTMLElement {
     this._off = [];
     this.bind?.();
     this.update();
+    this.hidratar();
+  }
+  /** Carga asíncrona opcional: la vista define load() (llamadas a la API) y, si hace falta, loaded() (recalcular estado); luego se repinta. */
+  async hidratar(){
+    if (!this.load) return;
+    try { await this.load(); } catch (err) { console.warn('[vista] load falló:', err?.message); }
+    if (this.isConnected){ this.loaded?.(); this.update(); }
   }
   disconnectedCallback(){ this._off.forEach(f => f()); this._off = []; this.cleanup?.(); }
   /** Re-renderiza cuando cambia el store */
@@ -20,12 +27,12 @@ export class CdeView extends HTMLElement {
   /** Enfoca el primer elemento con data-<attr>=<valor> (sin interpolar selectores) */
   focusBy(attr, value){ [...this.querySelectorAll('[data-' + attr + ']')].find(n => n.dataset[attr] === value)?.focus(); }
   /** Diálogo modal construido con h(): guardar() devuelve un mensaje de error (string) o null si todo salió bien */
-  dialog(titulo, campos, guardar, opener){
+  dialog(titulo, campos, guardar, opener, etiqueta = 'Guardar'){
     const err = h('p', { class: 'form-err', role: 'alert' });
     const dlg = h('dialog', { aria: { label: titulo } },
       h('form', { class: 'dlg', novalidate: '', on: { submit: e => { e.preventDefault(); const msg = guardar(); if (msg) err.textContent = msg; else dlg.close(); } } },
         h('h2', { class: 'h', text: titulo }), ...campos, err,
-        h('div', { class: 'dlg-acts' }, h('button', { class: 'btn o', type: 'button', text: 'Cancelar', on: { click: () => dlg.close() } }), h('button', { class: 'btn', type: 'submit', text: 'Guardar' }))));
+        h('div', { class: 'dlg-acts' }, h('button', { class: 'btn o', type: 'button', text: 'Cancelar', on: { click: () => dlg.close() } }), h('button', { class: 'btn', type: 'submit', text: etiqueta }))));
     dlg.addEventListener('close', () => { dlg.remove(); opener?.focus(); });
     this.append(dlg); dlg.showModal();
     return dlg;

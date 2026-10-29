@@ -45,16 +45,33 @@ cde-role-switch .seg button[aria-pressed=true]{background:var(--verde-accion);co
 #outlet{flex:1;display:flex;flex-direction:column;padding:32px;outline:0;min-width:0}
 #outlet>*{display:flex;flex-direction:column;gap:16px;min-width:0;width:100%}
 
+.lbl-md,.lbl-sm{display:none}
+.top .streak{background:var(--aviso-fondo);color:var(--aviso-texto);font-weight:600;white-space:nowrap}
+.streak[hidden],.s-s{display:none}
+.shell[data-role=emp] .search{display:none}
 @media(max-width:1023px){
-  .shell[data-chrome=app]{grid-template-columns:76px minmax(0,1fr)}
-  .nav a span,.sb .demo{display:none}.nav a{justify-content:center;padding:0}
+  .shell[data-chrome=app]{grid-template-columns:104px minmax(0,1fr)}
+  .sb{padding:16px 8px}.sb .demo{display:none}
+  .nav a{flex-direction:column;justify-content:center;gap:4px;height:auto;min-height:62px;padding:8px 4px;text-align:center;font-size:11.5px;line-height:1.2}
+  .nav a[aria-current=page]::before{top:12px;bottom:12px}
+  .nav a.v .lbl{display:none}.nav a.v .lbl-md{display:inline}
+  [data-chrome=app] .dock{display:block}
   .search{width:190px}
 }
 @media(max-width:699px){
   .top{padding:0 16px;height:56px}
   .top .logo{height:32px}
-  #outlet{padding:20px 16px 150px}
+  .shell[data-role=emp] .crumbs{display:none}.shell[data-role=emp] .top{justify-content:space-between}
+  .s-l{display:none}.s-s{display:inline}
+  #outlet{padding:20px 16px calc(var(--tab-h) + 120px)}
   .dock{left:12px;right:12px;bottom:12px;width:auto}
+  [data-chrome=app] .dock{bottom:calc(var(--tab-h) + 12px)}
   .shell[data-chrome=app]{grid-template-columns:minmax(0,1fr)}
-  [data-chrome=app] .sb{display:none}
+  [data-chrome=app] .sb{position:fixed;top:auto;left:0;right:0;bottom:0;height:var(--tab-h);flex-direction:row;padding:6px 8px;z-index:20;background:#fff;border-top:1px solid var(--borde);overflow:visible}
+  .sb .brand{display:none}
+  .nav{flex-direction:row;width:100%;gap:4px}
+  .nav a{flex:1;min-height:0;height:100%;padding:0 2px;border-radius:12px;color:var(--texto-2);font-size:11px}
+  .nav a.v .lbl-md{display:none}.nav a.v .lbl-sm{display:inline}
+  .nav a[aria-current=page]{background:var(--menta);color:var(--verde-oscuro)}.nav a[aria-current=page]::before{display:none}
 }
+.top .streak{margin-left:auto}

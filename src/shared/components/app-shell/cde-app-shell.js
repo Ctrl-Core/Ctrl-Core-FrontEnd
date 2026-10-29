@@ -1,5 +1,7 @@
 import { store } from '../../../core/db/store.js';
 import { ROLES } from '../../../core/db/data.js';
+import { getPerfil } from '../../../core/db/perfil.js';
+import { fmt } from '../../utils/text.js';
 import { icon } from '../../utils/icons.js';
 import { h } from '../../utils/dom.js';
 
@@ -28,9 +30,10 @@ export class CdeAppShell extends HTMLElement {
           h('button', { class: 'search only-app', type: 'button', dataset: { search: '' }, aria: { label: 'Buscar empresa (Ctrl K)' },
             on: { click: () => document.dispatchEvent(new CustomEvent('cde:search')) } },
             h('span', {}, icon('search', 16), ' Buscar empresa…'), h('kbd', { text: 'Ctrl K' })),
-          h('div', { class: 'avatar', role: 'img', aria: { label: 'Usuario: JD' }, text: 'JD' })),
+          h('span', { class: 'streak only-app', dataset: { streak: '' }, hidden: true }),
+          h('div', { class: 'avatar', role: 'img', dataset: { avatar: '' } })),
         h('main', { id: 'outlet', tabindex: '-1', aria: { live: 'polite' } })),
-      h('div', { class: 'dock only-bare' }, demo()),
+      h('div', { class: 'dock' }, demo()),
       h('cde-command'),
       h('div', { class: 'toasts', role: 'status', aria: { live: 'polite' } })));
     this.$ = s => this.querySelector(s);
@@ -50,10 +53,17 @@ export class CdeAppShell extends HTMLElement {
     const route = this.route; if (!route) return;
     this.$('.shell').dataset.chrome = route.def.chrome;
     this.$('[data-note]').textContent = route.def.note || '';
+    const role = store.get().role, av = this.$('[data-avatar]');
+    this.$('.shell').dataset.role = role;
+    av.textContent = ROLES[role].avatar; av.setAttribute('aria-label', 'Usuario: ' + ROLES[role].avatar);
+    const rc = this.$('[data-streak]'); rc.hidden = role !== 'emp';          // racha + XP solo para el Emprendedor
+    if (role === 'emp'){ const p = getPerfil(); rc.setAttribute('aria-label', `Racha de ${p.racha} días, ${fmt(p.xp)} XP`);
+      rc.replaceChildren(icon('flame', 16), h('span', { class: 's-l', text: `Racha ${p.racha} días · ${fmt(p.xp)} XP` }), h('span', { class: 's-s', text: `${p.racha} · ${fmt(p.xp)} XP` })); }
     if (route.def.chrome === 'app'){
       const menu = ROLES[store.get().role].menu;
-      this.$('[data-nav]').replaceChildren(...menu.map(([p, l, i]) =>
-        h('a', { href: '#' + p, aria: { current: route.path === p || route.path.startsWith(p + '/') ? 'page' : null } }, icon(i), h('span', { text: l }))));
+      this.$('[data-nav]').replaceChildren(...menu.map(([p, l, i, v]) =>
+        h('a', { class: v ? 'v' : '', href: '#' + p, aria: { current: route.path === p || route.path.startsWith(p + '/') ? 'page' : null } }, icon(i),
+          h('span', { class: 'lbl', text: l }), ...(v ? [h('span', { class: 'lbl-md', text: v.md }), h('span', { class: 'lbl-sm', text: v.sm })] : []))));
       const [pl, ph] = route.def.parent || [];
       this.$('[data-crumbs]').replaceChildren(document.createTextNode('Inicio / '),
         ...(pl ? [h('a', { href: ph, text: pl }), document.createTextNode(' / ')] : []),

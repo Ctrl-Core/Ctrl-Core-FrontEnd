@@ -3,7 +3,8 @@
  * Sin DOM. Los cambios se guardan en store.eventos / store.asistencia (localStorage).
  */
 import { store } from '../../../core/db/store.js';
-import { EVENTOS, ASISTENCIA, DIRECTORIO, HOY, XP_CHECKIN } from '../../../core/db/data.js';
+import { EVENTOS, ASISTENCIA, DIRECTORIO, HOY, XP_CHECKIN, USUARIO_EMPRENDEDOR } from '../../../core/db/data.js';
+import { sumarXp } from '../../emprendedor/services/gamificacion.js';
 import { esFecha } from '../../../shared/utils/dates.js';
 
 export const getEventos = () => store.get().eventos ?? EVENTOS;
@@ -35,6 +36,8 @@ export function confirmarEvento(id){
   guardarEventos(getEventos().map(e => (e.id === id ? { ...e, estado: 'Confirmada' } : e)));
   return { ok: true };
 }
+/** ¿La persona es el Emprendedor de la demo? (empresa + nombre) */
+const esMia = p => p.empresaId === USUARIO_EMPRENDEDOR.empresaId && p.nombre === USUARIO_EMPRENDEDOR.nombre;
 /** Check-in por QR (simulado): el siguiente inscrito pasa a "Asistió" y suma XP al instante. Solo eventos confirmados. */
 export function simularCheckin(id){
   const ev = getEventos().find(e => e.id === id);
@@ -44,6 +47,7 @@ export function simularCheckin(id){
   if (!p) return { ok: false, motivo: 'No quedan inscritos pendientes de check-in' };
   guardarPersonas(id, lista.map(x => (x.id === p.id ? { ...x, estado: 'Asistió' } : x)));
   guardarEventos(getEventos().map(e => (e.id === id ? { ...e, asistentes: e.asistentes + 1 } : e)));
+  if (esMia(p)) sumarXp(XP_CHECKIN, `Check-in: ${ev.nombre}`);   // el XP llega al Emprendedor al instante
   return { ok: true, persona: p, xp: XP_CHECKIN };
 }
 /** Segmentación por reglas sobre el directorio (sector, sin asistencia previa, ficha mínima) */
@@ -54,4 +58,33 @@ export function segmentar({ sectorId, sinAsistencia, fichaMin }){
     .filter(e => !sectorId || e.sectorId === sectorId)
     .filter(e => !sinAsistencia || !asistieron.has(e.id))
     .filter(e => !fichaMin || e.salud > fichaMin);
+}
+
+/* ---------- Emprendedor: Mis eventos ---------- */
+/** Eventos publicados (no borradores) con la inscripción del Emprendedor: próximos primero, luego los pasados */
+export function misEventos(){
+  const l = getEventos().filter(e => e.estado !== 'Borrador').map(evento => ({ evento, persona: getAsistencia(evento.id).find(esMia) ?? null }));
+  const prox = l.filter(x => x.evento.fecha >= HOY).sort((a, b) => a.evento.fecha.localeCompare(b.evento.fecha));
+  return [...prox, ...l.filter(x => x.evento.fecha < HOY).sort((a, b) => b.evento.fecha.localeCompare(a.evento.fecha))];
+}
+/** Evento próximo con inscripción vigente: es el que da derecho al QR de check-in */
+export const eventoConQr = () => misEventos().find(x => x.persona?.estado === 'Inscrito' && x.evento.estado === 'Confirmada' && x.evento.fecha >= HOY) ?? null;
+export function inscribir(eventoId){
+  const ev = getEventos().find(e => e.id === eventoId);
+  if (!ev || ev.estado !== 'Confirmada') return { ok: false, error: 'Este evento aún no admite inscripciones' };
+  if (ev.fecha < HOY) return { ok: false, error: 'El evento ya ocurrió' };
+  const lista = getAsistencia(eventoId);
+  if (lista.some(esMia)) return { ok: false, error: 'Ya estás inscrito' };
+  if (ev.inscritos >= ev.convocados) return { ok: false, error: 'El evento no tiene cupos disponibles' };
+  guardarPersonas(eventoId, [...lista, { id: 'u' + Date.now(), nombre: USUARIO_EMPRENDEDOR.nombre, empresaId: USUARIO_EMPRENDEDOR.empresaId, estado: 'Inscrito' }]);
+  guardarEventos(getEventos().map(e => (e.id === eventoId ? { ...e, inscritos: e.inscritos + 1 } : e)));
+  return { ok: true };
+}
+export function cancelarInscripcion(eventoId){
+  const ev = getEventos().find(e => e.id === eventoId), lista = getAsistencia(eventoId), p = lista.find(esMia);
+  if (!ev || !p || p.estado !== 'Inscrito') return { ok: false, error: 'No tienes una inscripción vigente en este evento' };
+  if (ev.fecha < HOY) return { ok: false, error: 'El evento ya ocurrió' };
+  guardarPersonas(eventoId, lista.filter(x => x.id !== p.id));
+  guardarEventos(getEventos().map(e => (e.id === eventoId ? { ...e, inscritos: Math.max(0, e.inscritos - 1) } : e)));
+  return { ok: true };
 }
