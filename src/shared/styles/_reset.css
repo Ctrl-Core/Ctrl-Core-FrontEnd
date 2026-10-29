@@ -1,0 +1,15 @@
+/* Reset y reglas globales de elementos (antes: primeras líneas de base.css) */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font:14px/1.45 var(--font);color:var(--texto);background:var(--fondo)}
+h1,h2,h3,p,ul{margin:0}
+ul{padding:0;list-style:none}
+a{color:var(--verde-hover);text-decoration:none}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+img,svg{max-width:100%}
+:focus-visible{outline:3px solid var(--verde-foco);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.muted{color:var(--texto-2)}
+.small{font-size:12px}
+.b{font-weight:600}

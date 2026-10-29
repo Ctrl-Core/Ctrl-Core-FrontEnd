@@ -1,0 +1,60 @@
+/* App Shell · se renderiza una sola vez. data-chrome="bare" (solo topbar con logo) | "app" (sidebar + topbar) */
+cde-app-shell{display:block;min-height:100dvh}
+.shell{min-height:100dvh;display:grid;grid-template-columns:minmax(0,1fr)}
+.shell[data-chrome=app]{grid-template-columns:var(--sb-w) minmax(0,1fr)}
+.main{display:flex;flex-direction:column;min-width:0}
+
+/* Topbar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;height:62px;padding:0 32px;background:var(--superficie);border-bottom:1px solid var(--borde)}
+.top .logo{height:38px;width:auto;display:block}
+.top .spacer{flex:1}
+.top .note{color:var(--texto-2);font-size:13px}
+.avatar{display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:50%;background:var(--verde-accion);color:#fff;font-weight:700;font-size:12px}
+.crumbs{flex:1;min-width:0;font-size:13px;color:var(--texto-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crumbs b{color:var(--texto);font-weight:600}
+.search{display:flex;align-items:center;justify-content:space-between;gap:12px;width:300px;height:36px;padding:0 12px;border:1px solid var(--borde-campo);border-radius:var(--radio-sm);background:var(--fondo);color:var(--texto-2);font-size:13px}
+.search span{display:flex;align-items:center;gap:8px}
+kbd{font:inherit;font-size:11px;padding:1px 6px;border:1px solid var(--borde-campo);border-radius:5px;background:#fff;color:var(--texto-2)}
+.streak{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;background:var(--menta);color:var(--verde-oscuro);font-size:12px}
+[data-chrome=bare] .only-app,[data-chrome=app] .only-bare{display:none!important}
+
+/* Sidebar (modo app) */
+.sb{position:sticky;top:0;height:100dvh;background:var(--verde-oscuro);display:flex;flex-direction:column;gap:4px;padding:16px 12px;overflow:auto}
+.brand{display:flex;align-items:center;justify-content:center;min-height:50px;margin-bottom:16px;padding:6px 10px;border-radius:var(--radio);background:#fff}
+.brand img{height:34px;display:block}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav a{position:relative;display:flex;align-items:center;gap:12px;height:40px;padding:0 12px;border-radius:var(--radio-sm);color:var(--sb-texto);font-weight:500;font-size:13.5px}
+.nav a:hover{background:rgba(255,255,255,.07)}
+.nav a[aria-current=page]{background:var(--sb-activo);color:#fff;font-weight:600}
+.nav a[aria-current=page]::before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:3px;border-radius:2px;background:var(--verde-acento)}
+.nav svg{flex:none}
+.sb .demo{margin-top:auto;border-top:1px solid rgba(255,255,255,.12);padding-top:12px}
+
+/* Conmutador de rol (componente reutilizable) */
+cde-role-switch .seg{display:flex;gap:2px;padding:3px;border-radius:var(--radio-sm);background:#082B20}
+cde-role-switch .seg button{flex:1;border:0;border-radius:6px;padding:8px 3px;font-size:11.5px;background:transparent;color:var(--sb-texto);white-space:nowrap}
+cde-role-switch .seg button:hover{background:rgba(255,255,255,.08)}
+cde-role-switch .seg button[aria-pressed=true]{background:var(--verde-accion);color:#fff;font-weight:600}
+.demo p,.dock p{font-size:11px;color:var(--sb-texto-2);margin-bottom:6px}
+
+/* Dock flotante "Modo demostración · cambiar rol" */
+.dock{position:fixed;right:16px;bottom:16px;z-index:30;width:290px;padding:10px 12px 12px;border-radius:var(--radio);background:var(--verde-oscuro);box-shadow:0 12px 32px rgba(11,59,44,.35)}
+.dock cde-role-switch .seg{background:#082B20}
+[data-chrome=app] .dock{display:none}
+
+#outlet{flex:1;display:flex;flex-direction:column;padding:32px;outline:0;min-width:0}
+#outlet>*{display:flex;flex-direction:column;gap:16px;min-width:0;width:100%}
+
+@media(max-width:1023px){
+  .shell[data-chrome=app]{grid-template-columns:76px minmax(0,1fr)}
+  .nav a span,.sb .demo{display:none}.nav a{justify-content:center;padding:0}
+  .search{width:190px}
+}
+@media(max-width:699px){
+  .top{padding:0 16px;height:56px}
+  .top .logo{height:32px}
+  #outlet{padding:20px 16px 150px}
+  .dock{left:12px;right:12px;bottom:12px;width:auto}
+  .shell[data-chrome=app]{grid-template-columns:minmax(0,1fr)}
+  [data-chrome=app] .sb{display:none}
+}

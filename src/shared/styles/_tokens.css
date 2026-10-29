@@ -1,0 +1,41 @@
+/* Paleta institucional CDE UNAB (variables CSS) */
+:root{
+  /* Marca */
+  --verde-mar:#008F5D;      /* barras, iconos, acentos */
+  --verde-accion:#007A4F;   /* botón principal, avatar */
+  --verde-hover:#006843;    /* hover y enlaces */
+  --verde-oscuro:#0B3B2C;   /* sidebar, títulos */
+  --menta:#E0F2E9;          /* chips, fondos de icono, KPI destacado */
+  --menta-hover:#CFE9DB;
+  --verde-acento:#5FD3A5;   /* barra del ítem activo */
+  --verde-foco:#7FD9B4;     /* anillo de foco */
+  /* Neutros */
+  --fondo:#F6F8F7;
+  --superficie:#FFFFFF;
+  --borde:#E3E8E6;
+  --borde-campo:#D5DCD9;
+  --texto:#393E41;
+  --texto-2:#5F676C;
+  --texto-menta:#2F4A40;
+  --deshabilitado:#F1F4F3;
+  /* Sidebar */
+  --sb-texto:#CFE3DA;
+  --sb-texto-2:#A9C6B9;
+  --sb-activo:rgba(255,255,255,.12);
+  /* Estados */
+  --alerta-fondo:#FFF4F2;
+  --alerta-borde:#F3C4BD;
+  --alerta-icono:#D93A28;
+  --alerta-titulo:#7A1A10;
+  --alerta-texto:#A8281A;
+  --barra-sec:#7DBFA4;
+  --aviso-fondo:#FFF1C2;    /* Por revisar / Pendiente (según el PDF de diseño) */
+  --aviso-texto:#5C4400;
+  /* Sistema */
+  --radio:12px;
+  --radio-sm:8px;
+  --font:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --sb-w:232px;
+  --top-h:56px;
+  --tab-h:62px;
+}
