@@ -5,7 +5,7 @@ import { fmt } from '../../utils/text.js';
 import { icon } from '../../utils/icons.js';
 import { h } from '../../utils/dom.js';
 
-const LOGO = 'public/assets/logo-cde-unab.png';
+const LOGO = 'public/assets/logo-cde-unab.jpeg';
 
 /**
  * App Shell maestro. Se construye UNA sola vez y contiene topbar, sidebar, dock de rol, avisos (toasts)
